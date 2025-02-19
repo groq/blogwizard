@@ -191,13 +191,11 @@ def generate_notes_structure(transcript: str, model: str = "llama3-70b-8192"):
     """
 
     shot_example = """
-"Introduction": "Introduction to the AMA session, including the topic of Groq scaling architecture and the panelists",
-"Panelist Introductions": "Brief introductions from Igor, Andrew, and Omar, covering their backgrounds and roles at Groq",
-"Groq Scaling Architecture Overview": "High-level overview of Groq's scaling architecture, covering hardware, software, and cloud components",
-"Hardware Perspective": "Igor's overview of Groq's hardware approach, using an analogy of city traffic management to explain the traditional compute approach and Groq's innovative approach",
-"Traditional Compute": "Description of traditional compute approach, including asynchronous nature, queues, and poor utilization of infrastructure",
-"Groq's Approach": "Description of Groq's approach, including pre-orchestrated movement of data, low latency, high energy efficiency, and high utilization of resources",
-"Hardware Implementation": "Igor's explanation of the hardware implementation, including a comparison of GPU and LPU architectures"
+"Introduction": "Brief overview of the topic. Why it's relevant and important",
+"Key Topic Discussions [1-3]": "Talk about the key moments of the topic",
+"Analysis and Insights": "Highlight insights and statistics. May include past and present comparison",
+"Takeaways": "Share advice that may be relevant to the readers",
+"Conclusion": "May include recap of key points, implications for the future, call to action."
 }"""
     completion = st.session_state.groq.chat.completions.create(
         model=model,
@@ -230,7 +228,7 @@ def generate_section(transcript: str, existing_notes: str, section: str, model: 
         messages=[
             {
                 "role": "system",
-                "content": "You are an expert blog writer. Generate a comprehensive third-person body content for the section provided based on the transcript provided. Do *not* repeat any content from previous sections."
+                "content": "You are an expert blog writer. Generate body content in third-person for the section provided based on the transcript. Do *not* repeat any content from previous sections. No need to preface with any titles or pleasantries, just provide the paragraphs."
             },
             {
                 "role": "user",
@@ -296,7 +294,7 @@ try:
         }
 
         st.write(f"# 🧙‍♂️ BlogWizard \n## Generate blog from audio in seconds using Groq, Whisper, and Llama3")
-        st.markdown(f"[Github Repository](https://github.com/bklieger/scribewizard)\n\nAs with all generative AI, content may include inaccurate or placeholder information. ScribeWizard is in beta and all feedback is welcome!")
+        st.markdown(f"[Github Repository](https://github.com/cho-groq/BlogWizard)\n\nAs with all generative AI, content may include inaccurate or placeholder information. BlogWizard is in beta and all feedback is welcome!")
 
         st.write(f"---")
 
@@ -324,7 +322,7 @@ try:
         st.write(f"---")
 
         st.write("# Customization Settings\n🧪 These settings are experimental.\n")
-        st.write(f"By default, ScribeWizard uses Llama3-70b for generating the blog outline and Llama3-8b for the content. This balances quality with speed and rate limit usage. You can customize these selections below.")
+        st.write(f"By default, BlogWizard uses Llama3-70b for generating the blog outline and Llama3-8b for the content. This balances quality with speed and rate limit usage. You can customize these selections below.")
         outline_model_options = ["llama3-70b-8192", "llama3-8b-8192", "mixtral-8x7b-32768", "gemma-7b-it"]
         outline_selected_model = st.selectbox("Outline generation:", outline_model_options)
         content_model_options = ["llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768", "gemma-7b-it", "gemma2-9b-it"]
@@ -333,6 +331,8 @@ try:
         
         # Add note about rate limits
         st.info("Important: Different models have different token and rate limits which may cause runtime errors.")
+
+
     
 
     if st.button('End Generation and Download Blog'):
@@ -482,6 +482,7 @@ try:
                             stream_section_content(content)
 
                 stream_section_content(notes_structure_json)
+
             except json.JSONDecodeError:
                 st.error("Failed to decode the blog structure. Please try again.")
 
@@ -491,13 +492,17 @@ except Exception as e:
     st.session_state.button_disabled = False
 
     if hasattr(e, 'status_code') and e.status_code == 413:
-        # In the future, this limitation will be fixed as ScribeWizard will automatically split the audio file and transcribe each part.
+        # In the future, this limitation will be fixed as BlogWizard will automatically split the audio file and transcribe each part.
         st.error(FILE_TOO_LARGE_MESSAGE)
     else:
         st.error(e)
 
     if st.button("Clear"):
         st.rerun()
+    
+    if st.button("Translate into Arabic"):
+        print("change into arabic")
+        
     
     # Remove audio after exception to prevent data storage leak
     if audio_file_path is not None:
