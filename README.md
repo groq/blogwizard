@@ -25,8 +25,8 @@
 
 <br>
 
-[Demo of ScribeWizard](https://github.com/user-attachments/assets/c222bea0-3784-4f06-b431-ef81eea5691d)
-> Demo of ScribeWizard fast transcription of audio and generation of structured notes
+[Demo of BlogWizard](https://github.com/user-attachments/assets/c222bea0-3784-4f06-b431-ef81eea5691d)
+> Demo of BlogWizard fast transcription of audio and generation of structured blog
 
 
 ## Overview
