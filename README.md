@@ -141,3 +141,6 @@ This release is an initial release of the application codebase. It includes the 
 
 - Create summary version of transcript, batching into sections of n characters.
 - Allow upload of multiple audio files
+
+# Notea
+You have to use python3.12. 3.13 will not work.

@@ -276,8 +276,13 @@ def enable():
 def empty_st():
     st.empty()
 
+image_file = "assets/groqlabs.svg"
 try:
     with st.sidebar:
+
+        if image_file:
+            st.image(image_file, width=200)
+
         audio_files = {
             "Transformers Explained by Google Cloud Tech": {
                 "file_path": "assets/audio/transformers_explained.m4a",
@@ -332,7 +337,72 @@ try:
         # Add note about rate limits
         st.info("Important: Different models have different token and rate limits which may cause runtime errors.")
 
+        def translate_to_arabic(markdown_content):
+            # text = ""
+            # for title, content in structure.items():
+            #     if self.contents[title].strip():  # Only include title if there is content
+            #         markdown_content += f"{'#' * level} {title}\n{self.contents[title]}.\n\n"
+            #     if isinstance(content, dict):
+            #         markdown_content += self.get_markdown_content(content, level + 1)
 
+            chat_completion = st.session_state.groq.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Translate the following text into Arabic"
+                },
+                {
+                    "role": "user",
+                    "content": markdown_content,
+                }
+            ],
+            model="allam-2-7b",
+            )
+            print("translated notes: ", chat_completion.choices[0].message.content)
+            
+            return chat_completion.choices[0].message.content
+    
+        prompt = st.text_area("Linkedin Summary Prompt", value="Summarize this text into a linkedin post. Use markdown and emojis.")
+
+        @st.dialog("Arabic Translation", width="large")
+        def arabic(item):
+            st.markdown(
+            f'<div dir="rtl" style="text-align: right;">{item}</div>',
+            unsafe_allow_html=True
+           )
+        
+        if "arabic" not in st.session_state:
+            if st.button("Translate into Arabic"):
+                arabic_translation = translate_to_arabic(st.session_state.notes.get_markdown_content())
+                print(arabic_translation)
+                arabic(arabic_translation)
+        
+        def linkedin_post(text):
+            chat_completion = st.session_state.groq.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": prompt
+                },
+                {
+                    "role": "user",
+                    "content": text,
+                }
+            ],
+            model="llama-3.3-70b-versatile",
+            )
+            print("linkedin post: ", chat_completion.choices[0].message.content)
+            return chat_completion.choices[0].message.content
+        
+        @st.dialog("Linkedin Post", width="large")
+        def vote(item):
+            # Path = f'''{item}'''
+            st.markdown(item)
+        
+        if "vote" not in st.session_state:
+            if st.button("Summarize into linkedin post"):
+                linkedin_post_text = linkedin_post(st.session_state.notes.get_markdown_content())
+                vote(linkedin_post_text)
     
 
     if st.button('End Generation and Download Blog'):
@@ -499,10 +569,6 @@ except Exception as e:
 
     if st.button("Clear"):
         st.rerun()
-    
-    if st.button("Translate into Arabic"):
-        print("change into arabic")
-        
     
     # Remove audio after exception to prevent data storage leak
     if audio_file_path is not None:
