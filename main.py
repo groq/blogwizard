@@ -16,6 +16,7 @@ GROQ_API_KEY = os.environ.get("GROQ_API_KEY", None)
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
 FILE_TOO_LARGE_MESSAGE = "The audio file is too large for the current size and rate limits using Whisper. If you used a YouTube link, please try a shorter video clip. If you uploaded an audio file, try trimming or compressing the audio to under 25 MB."
 
+global_variable = None
 audio_file_path = None
 
 if 'api_key' not in st.session_state:
@@ -135,7 +136,7 @@ class NoteSection:
             if isinstance(content, dict):
                 col_index = self.display_toc(content, columns, level + 1, col_index)
         return col_index
-
+    
     def get_markdown_content(self, structure=None, level=1):
         """
         Returns the markdown styled pure string with the contents.
@@ -150,6 +151,22 @@ class NoteSection:
             if isinstance(content, dict):
                 markdown_content += self.get_markdown_content(content, level + 1)
         return markdown_content
+    
+    def get_markdown_arabic(self, structure=None, level=1):
+        """
+        Returns the dictionary contents of the structure.
+        """
+        if structure is None:
+            structure = self.structure
+        
+        markdown_content = ""
+        for title, content in structure.items():
+            if self.contents[title].strip():  # Only include title if there is content
+                markdown_content += translate_to_arabic(f"{'#' * level} {title}\n{self.contents[title]}.\n\n")
+            if isinstance(content, dict):
+                markdown_content += translate_to_arabic(self.get_markdown_content(content, level + 1))
+        return markdown_content
+
 
 def create_markdown_file(content: str) -> BytesIO:
     """
@@ -263,18 +280,67 @@ if 'button_text' not in st.session_state:
 if 'statistics_text' not in st.session_state:
     st.session_state.statistics_text = ""
 
+if 'buttons_misc_disabled' not in st.session_state:
+    st.session_state.buttons_misc_disabled = True
+
+if 'notes' not in st.session_state:
+    st.session_state.notes = None
+
 st.write("""
 # BlogWizard: Create structured blog from audio 🗒️⚡
 """)
 
+def enable_buttons_misc():
+    st.session_state.buttons_misc_disabled = False
+
 def disable():
     st.session_state.button_disabled = True
+    # and also enable the miscs buttons
+    st.session_state.buttons_misc_disabled = False
 
 def enable():
     st.session_state.button_disabled = False
 
 def empty_st():
     st.empty()
+
+def translate(text, selected_lang):
+    chat_completion = st.session_state.groq.chat.completions.create(
+    messages=[
+        {
+            "role": "system",
+            "content": f"Translate this text into {selected_lang}. Use markdown."
+        },
+        {
+            "role": "user",
+            "content": text,
+        }
+    ],
+    model="llama-3.3-70b-versatile"
+    )
+    print(f"translated notes in {selected_lang}: ", chat_completion.choices[0].message.content)
+    
+    return chat_completion.choices[0].message.content
+
+def translate_to_arabic(markdown_content):
+           
+    chat_completion = st.session_state.groq.chat.completions.create(
+    messages=[
+        {
+            "role": "system",
+            "content": "Translate the entire text into Arabic"
+        },
+        {
+            "role": "user",
+            "content": markdown_content,
+        }
+    ],
+    model="allam-2-7b",
+    )
+    print("translated notes: ", chat_completion.choices[0].message.content)
+    
+    return chat_completion.choices[0].message.content
+
 
 image_file = "assets/groqlabs.svg"
 try:
@@ -327,42 +393,60 @@ try:
         st.write(f"---")
 
         st.write("# Customization Settings\n🧪 These settings are experimental.\n")
-        st.write(f"By default, BlogWizard uses Llama3-70b for generating the blog outline and Llama3-8b for the content. This balances quality with speed and rate limit usage. You can customize these selections below.")
-        outline_model_options = ["llama3-70b-8192", "llama3-8b-8192", "mixtral-8x7b-32768", "gemma-7b-it"]
+        st.write(f"By default, BlogWizard uses Llama3.3-70b for generating the blog outline and Llama3-8b for the content. This balances quality with speed and rate limit usage. You can customize these selections below.")
+        outline_model_options = ["llama-3.3-70b-versatile", "llama3-70b-8192", "deepseek-r1-distill-qwen-32b", "mixtral-8x7b-32768", "gemma-9b-it"]
         outline_selected_model = st.selectbox("Outline generation:", outline_model_options)
-        content_model_options = ["llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768", "gemma-7b-it", "gemma2-9b-it"]
+        content_model_options = ["llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"]
         content_selected_model = st.selectbox("Content generation:", content_model_options)
 
         
         # Add note about rate limits
         st.info("Important: Different models have different token and rate limits which may cause runtime errors.")
+        
+        LANGUAGES = {
+            "en": "English",
+            "fr": "French",
+            "es": "Spanish",
+            "de": "German",
+            "it": "Italian",
+            "pt": "Portuguese",
+            "zh": "Chinese",
+            "ja": "Japanese",
+            "ko": "Korean",
+            "ru": "Russian",
+            "ar": "Arabic",
+            "hi": "Hindi",
+            "nl": "Dutch",
+            "sv": "Swedish",
+            "fi": "Finnish",
+            "da": "Danish",
+            "no": "Norwegian",
+            "pl": "Polish",
+            "tr": "Turkish",
+            "he": "Hebrew",
+        }
 
-        def translate_to_arabic(markdown_content):
-            # text = ""
-            # for title, content in structure.items():
-            #     if self.contents[title].strip():  # Only include title if there is content
-            #         markdown_content += f"{'#' * level} {title}\n{self.contents[title]}.\n\n"
-            #     if isinstance(content, dict):
-            #         markdown_content += self.get_markdown_content(content, level + 1)
+        st.title("Language Translate")
 
-            chat_completion = st.session_state.groq.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Translate the following text into Arabic"
-                },
-                {
-                    "role": "user",
-                    "content": markdown_content,
-                }
-            ],
-            model="allam-2-7b",
-            )
-            print("translated notes: ", chat_completion.choices[0].message.content)
-            
-            return chat_completion.choices[0].message.content
-    
-        prompt = st.text_area("Linkedin Summary Prompt", value="Summarize this text into a linkedin post. Use markdown and emojis.")
+        # Create a dropdown selector
+        selected_lang = st.selectbox("Choose a language to translate to:", options=LANGUAGES.values())
+
+        @st.dialog(f"{selected_lang} translation", width="large")
+        def language(item):
+            st.markdown(item)
+        
+       
+        # Get the abbreviation code from the selected language. but not needed for text
+        # selected_code = next(code for code, name in LANGUAGES.items() if name == selected_lang)
+
+
+        if selected_lang:
+            if st.button("Translate into language", disabled=st.session_state.buttons_misc_disabled):
+                translation = translate(st.session_state.notes.get_markdown_content(), selected_lang)
+                language(translation)
+                
+       
+        st.title("Use ALLaM to translate into Arabic:")
 
         @st.dialog("Arabic Translation", width="large")
         def arabic(item):
@@ -372,11 +456,11 @@ try:
            )
         
         if "arabic" not in st.session_state:
-            if st.button("Translate into Arabic"):
-                arabic_translation = translate_to_arabic(st.session_state.notes.get_markdown_content())
+            if st.button("Translate into Arabic", disabled=st.session_state.buttons_misc_disabled):
+                arabic_translation = st.session_state.notes.get_markdown_arabic()
                 print(arabic_translation)
                 arabic(arabic_translation)
-        
+
         def linkedin_post(text):
             chat_completion = st.session_state.groq.chat.completions.create(
             messages=[
@@ -399,8 +483,10 @@ try:
             # Path = f'''{item}'''
             st.markdown(item)
         
+        prompt = st.text_area("Linkedin Summary Prompt", value="Summarize this text into a linkedin post. Use markdown and emojis.")
+        
         if "vote" not in st.session_state:
-            if st.button("Summarize into linkedin post"):
+            if st.button("Summarize into linkedin post", disabled=st.session_state.buttons_misc_disabled):
                 linkedin_post_text = linkedin_post(st.session_state.notes.get_markdown_content())
                 vote(linkedin_post_text)
     
@@ -528,11 +614,15 @@ try:
             try:
                 notes_structure_json = json.loads(notes_structure)
                 notes = NoteSection(structure=notes_structure_json,transcript=transcription_text)
-                
-                if 'notes' not in st.session_state:
-                    st.session_state.notes = notes
+
+                st.session_state.notes = notes
 
                 st.session_state.notes.display_structure()
+                # are these the same
+                st.markdown(st.session_state.notes.get_markdown_content())
+
+                # will this save the notes
+                st.session_state.notes = notes
 
                 def stream_section_content(sections):
                     for title, content in sections.items():
