@@ -202,18 +202,56 @@ def transcribe_audio(audio_file):
     results = transcription.text
     return results
 
-def generate_notes_structure(transcript: str, model: str = "llama3-70b-8192"):
+def generate_notes_structure(transcript: str, blog_style, model: str = "llama3-70b-8192"):
     """
     Returns notes structure content as well as total tokens and total time for generation.
     """
 
     shot_example = """
-"Introduction": "Brief overview of the topic. Why it's relevant and important",
-"Key Topic Discussions [1-3]": "Talk about the key moments of the topic",
-"Analysis and Insights": "Highlight insights and statistics. May include past and present comparison",
-"Takeaways": "Share advice that may be relevant to the readers",
-"Conclusion": "May include recap of key points, implications for the future, call to action."
-}"""
+    "Introduction": "Brief overview of the topic. Why it's relevant and important",
+    "Key Topic Discussions [1-3]": "Talk about the key moments of the topic",
+    "Analysis and Insights": "Highlight insights and statistics. May include past and present comparison",
+    "Takeaways": "Share advice that may be relevant to the readers",
+    "Conclusion": "May include recap of key points, implications for the future, call to action."
+    }"""
+    if blog_style == "Customer Case Study":
+        shot_example = """
+        Customer company description
+        Challenge
+        -List one to three main challenges that a customer or an end user faces
+        -These challenges should clearly express why there is a need for solution
+        Solution
+        -Explain how the featured customer solves the above stated challenge
+        -In this description, include unique advantages and specific ROI that the customer offers to its end users
+        -Explain how Groq enables this customer to deliver this solution better than anyone else - this should usually include something about our value prop around speed, scalability, performance, or ROI
+        Key Features
+        Opportunity
+        -Explain the ways this solution can transform an end user's experience, disrupt an industry, or change the course of the world
+        -Explain how the solution can be applied to various industries and use cases"""
+    elif blog_style == "Launch of new Product":
+        shot_example = """
+        Introduction
+        -Name of model is now available on GroqCloud
+        -How to access the model
+        -A video or image showcasing the model running
+        -Quote from senior level executive, internal or external
+        Advantages of model
+        -Speed
+        -Quality
+        -Performance
+        -Price
+        -Third party benchmarks if available
+        Background on the model
+        -How was it built?
+        -Who does it serve?
+        -What use cases can it help with most?
+        -Why does it matter that the model is running on Groq
+        -Name of model running on GroqCloud means (speed, accessibility, performance, or some other value prop) for developers -and enterprises that is otherwise unavailable in the market
+        CTA
+        -Start building with Name of model today
+        -Call out any tools or features that make the model more enticing (tool use, higher rate limits, etc)
+"""
+    
     completion = st.session_state.groq.chat.completions.create(
         model=model,
         messages=[
@@ -239,13 +277,13 @@ def generate_notes_structure(transcript: str, model: str = "llama3-70b-8192"):
 
     return statistics_to_return, completion.choices[0].message.content
 
-def generate_section(transcript: str, existing_notes: str, section: str, model: str = "llama3-8b-8192"):
+def generate_section(blog_length, transcript: str, existing_notes: str, section: str, model: str = "llama3-8b-8192"):
     stream = st.session_state.groq.chat.completions.create(
         model=model,
         messages=[
             {
                 "role": "system",
-                "content": "You are an expert blog writer. Generate body content in third-person for the section provided based on the transcript. Do *not* repeat any content from previous sections. No need to preface with any titles or pleasantries, just provide the paragraphs."
+                "content": f"You are an expert blog writer. Generate body content in third-person for the section provided based on the transcript. Do *not* repeat any content from previous sections. No need to preface with any titles or pleasantries, just provide the paragraphs. Max word count of {blog_length} words."
             },
             {
                 "role": "user",
@@ -285,6 +323,9 @@ if 'buttons_misc_disabled' not in st.session_state:
 
 if 'notes' not in st.session_state:
     st.session_state.notes = None
+
+if 'markdown' not in st.session_state:
+    st.session_state.markdown = ""
 
 st.write("""
 # BlogWizard: Create structured blog from audio 🗒️⚡
@@ -348,6 +389,29 @@ try:
 
         if image_file:
             st.image(image_file, width=200)
+        
+        st.write(f"# 🧙‍♂️ BlogWizard \n## Generate blog from audio in seconds using Groq, Whisper, and Llama3")
+        st.markdown(f"[Github Repository](https://github.com/cho-groq/BlogWizard)\n\nAs with all generative AI, content may include inaccurate or placeholder information. BlogWizard is in beta and all feedback is welcome!")
+
+        STYLES = [
+            "Default",
+            "Customer Case Study",
+            "Launch of new Product"
+        ]
+
+        st.title("Blog options")
+
+        # Create a dropdown selector
+        blog_style = st.selectbox("Choose a template style:", options=STYLES)
+
+        BLOG_WORD_COUNT = {
+            "Up to 800 words":200,
+            "Up to 1400 words":300,
+            "Up to 2500 words":500,
+        }
+
+        # Create a dropdown selector
+        blog_length = st.selectbox("Choose a word count:", options=BLOG_WORD_COUNT.keys())
 
         audio_files = {
             "Transformers Explained by Google Cloud Tech": {
@@ -363,9 +427,6 @@ try:
                 "youtube_link": "https://www.youtube.com/watch?v=UztfweS-7MU"
             }
         }
-
-        st.write(f"# 🧙‍♂️ BlogWizard \n## Generate blog from audio in seconds using Groq, Whisper, and Llama3")
-        st.markdown(f"[Github Repository](https://github.com/cho-groq/BlogWizard)\n\nAs with all generative AI, content may include inaccurate or placeholder information. BlogWizard is in beta and all feedback is welcome!")
 
         st.write(f"---")
 
@@ -603,7 +664,7 @@ try:
             
 
             display_status("Generating blog structure....")
-            large_model_generation_statistics, notes_structure = generate_notes_structure(transcription_text, model=str(outline_selected_model))
+            large_model_generation_statistics, notes_structure = generate_notes_structure(transcription_text, blog_style, model=str(outline_selected_model))
             print("Structure: ",notes_structure)
 
             display_status("Generating blog ...")
@@ -618,16 +679,21 @@ try:
                 st.session_state.notes = notes
 
                 st.session_state.notes.display_structure()
-                # are these the same
-                st.markdown(st.session_state.notes.get_markdown_content())
 
                 # will this save the notes
-                st.session_state.notes = notes
+                st.session_state.markdown = st.session_state.notes.get_markdown_content()
+                print("this is the markdown: "+st.session_state.markdown)
+
+                st.write(st.session_state.markdown)
+    
+                # st.markdown(st.session_state.notes.get_markdown_content())
+
+                # st.markdown(st.session_state.markdown)
 
                 def stream_section_content(sections):
                     for title, content in sections.items():
                         if isinstance(content, str):
-                            content_stream = generate_section(transcript=transcription_text, existing_notes=notes.return_existing_contents(), section=(title + ": " + content),model=str(content_selected_model))
+                            content_stream = generate_section(blog_length, transcript=transcription_text, existing_notes=notes.return_existing_contents(), section=(title + ": " + content),model=str(content_selected_model))
                             for chunk in content_stream:
                                 # Check if GenerationStatistics data is returned instead of str tokens
                                 chunk_data = chunk
