@@ -6,6 +6,7 @@ from io import BytesIO
 from md2pdf.core import md2pdf
 from dotenv import load_dotenv
 from download import download_video_audio, delete_download
+from pydub import AudioSegment
 
 load_dotenv()
 
@@ -193,7 +194,7 @@ def transcribe_audio(audio_file):
     transcription = st.session_state.groq.audio.transcriptions.create(
       file=audio_file,
       model="whisper-large-v3",
-      prompt="",
+      prompt="If Groq is mentioned it is spelled Groq",
       response_format="json",
       language="en",
       temperature=0.0 
@@ -323,9 +324,8 @@ if 'buttons_misc_disabled' not in st.session_state:
 
 if 'notes' not in st.session_state:
     st.session_state.notes = None
-
-if 'markdown' not in st.session_state:
-    st.session_state.markdown = ""
+# if 'notes_structure_json' not in st.session_state:
+#     st.session_state.notes_structure_json = {}
 
 st.write("""
 # BlogWizard: Create structured blog from audio 🗒️⚡
@@ -391,7 +391,7 @@ try:
             st.image(image_file, width=200)
         
         st.write(f"# 🧙‍♂️ BlogWizard \n## Generate blog from audio in seconds using Groq, Whisper, and Llama3")
-        st.markdown(f"[Github Repository](https://github.com/cho-groq/BlogWizard)\n\nAs with all generative AI, content may include inaccurate or placeholder information. BlogWizard is in beta and all feedback is welcome!")
+        st.markdown(f"[Github Repository](https://github.com/cho-groq/BlogWizard)\n\n")
 
         STYLES = [
             "Default",
@@ -413,18 +413,20 @@ try:
         # Create a dropdown selector
         blog_length = st.selectbox("Choose a word count:", options=BLOG_WORD_COUNT.keys())
 
+        st.info("Audio files and YouTube videos over 19 minutes will be summarized only up to the first 19 minutes. Videos longer than 3 hours are not allowed")
+
         audio_files = {
-            "Transformers Explained by Google Cloud Tech": {
+            "Groq AI Weekly Updates": {
+                "file_path": "assets/audio/groq_ama_trimmed_20min.m4a",
+                "youtube_link": "https://www.youtube.com/watch?v=A3IRU6aoLYA"
+            },
+            "Highlights of 2025 LIV Golf Riyadh Round 1": {
                 "file_path": "assets/audio/transformers_explained.m4a",
                 "youtube_link": "https://www.youtube.com/watch?v=SZorAJ4I-sA"
             },
-            "The Essence of Calculus by 3Blue1Brown": {
+            "Joaquin Niemann LIV Golf Adelaide Postgame Winner Interview": {
                 "file_path": "assets/audio/essence_calculus.m4a",
-                "youtube_link": "https://www.youtube.com/watch?v=WUvTyaaNkzM"
-            },
-            "First 20 minutes of Groq's AMA": {
-                "file_path": "assets/audio/groq_ama_trimmed_20min.m4a",
-                "youtube_link": "https://www.youtube.com/watch?v=UztfweS-7MU"
+                "youtube_link": "https://www.youtube.com/watch?v=xIVKjjKQgl4"
             }
         }
 
@@ -441,14 +443,14 @@ try:
                 audio_bytes = audio_file.read()
 
             # Create download button
-            st.download_button(
-                label=f"Download audio",
-                data=audio_bytes,
-                file_name=audio_info['file_path'],
-                mime='audio/m4a'
-            )
+            # st.download_button(
+            #     label=f"Download audio",
+            #     data=audio_bytes,
+            #     file_name=audio_info['file_path'],
+            #     mime='audio/m4a'
+            # )
             
-            st.markdown(f"[Credit Youtube Link]({audio_info['youtube_link']})")
+            st.markdown(f"[Youtube Link]({audio_info['youtube_link']})")
             st.write(f"\n\n")
         
         st.write(f"---")
@@ -463,7 +465,7 @@ try:
         
         # Add note about rate limits
         st.info("Important: Different models have different token and rate limits which may cause runtime errors.")
-        
+
         LANGUAGES = {
             "en": "English",
             "fr": "French",
@@ -475,7 +477,6 @@ try:
             "ja": "Japanese",
             "ko": "Korean",
             "ru": "Russian",
-            "ar": "Arabic",
             "hi": "Hindi",
             "nl": "Dutch",
             "sv": "Swedish",
@@ -507,7 +508,7 @@ try:
                 language(translation)
                 
        
-        st.title("Use ALLaM to translate into Arabic:")
+        st.title("Translate into Arabic:")
 
         @st.dialog("Arabic Translation", width="large")
         def arabic(item):
@@ -550,7 +551,6 @@ try:
             if st.button("Summarize into linkedin post", disabled=st.session_state.buttons_misc_disabled):
                 linkedin_post_text = linkedin_post(st.session_state.notes.get_markdown_content())
                 vote(linkedin_post_text)
-    
 
     if st.button('End Generation and Download Blog'):
         if "notes" in st.session_state:
@@ -621,6 +621,10 @@ try:
                 else:
                     placeholder.empty()
 
+        # this displays the notes on the second go around when the user clicks a button on the side of the page
+        if 'notes' in st.session_state and st.session_state.notes is not None:
+            st.markdown(st.session_state.notes.get_markdown_content())
+
         if submitted:
             if input_method == "Upload audio file" and audio_file is None:
                 st.error("Please upload an audio file")
@@ -642,13 +646,24 @@ try:
                 else:
                     # Read the downloaded file and create a file-like objec
                     display_status("Processing Youtube audio ....")
-                    with open(audio_file_path, 'rb') as f:
-                        file_contents = f.read()
-                    audio_file = BytesIO(file_contents)
 
                     # Check size first to ensure will work with Whisper
                     if os.path.getsize(audio_file_path) > MAX_FILE_SIZE:
-                        raise ValueError(FILE_TOO_LARGE_MESSAGE)
+                        # use pydub to get the first 15 minutes of the audio file
+                        print(FILE_TOO_LARGE_MESSAGE)
+                        audio = AudioSegment.from_file(audio_file_path)
+                            
+                        # Extract the first 19 minutes
+                        fifteen_minutes_in_ms = 19 * 60 * 1000  # pydub works in milliseconds
+                        trimmed_audio = audio[:fifteen_minutes_in_ms]
+                        
+                        # Export directly to the original file path, overwriting it
+                        trimmed_audio.export(audio_file_path, format="mp3")
+                        
+                    # Now read the file (either original or trimmed) into memory
+                    with open(audio_file_path, 'rb') as f:
+                        file_contents = f.read()
+                    audio_file = BytesIO(file_contents)
 
                     audio_file.name = os.path.basename(audio_file_path)  # Set the file name
                     delete_download(audio_file_path)
@@ -665,7 +680,7 @@ try:
 
             display_status("Generating blog structure....")
             large_model_generation_statistics, notes_structure = generate_notes_structure(transcription_text, blog_style, model=str(outline_selected_model))
-            print("Structure: ",notes_structure)
+            # print("Structure: ",notes_structure)
 
             display_status("Generating blog ...")
             total_generation_statistics = GenerationStatistics(model_name=str(content_selected_model))
@@ -674,17 +689,20 @@ try:
 
             try:
                 notes_structure_json = json.loads(notes_structure)
+                st.session_state.notes_structure_json = notes_structure_json
+                # print(notes_structure_json)
                 notes = NoteSection(structure=notes_structure_json,transcript=transcription_text)
 
                 st.session_state.notes = notes
 
                 st.session_state.notes.display_structure()
+                print( st.session_state.notes.display_structure())
 
                 # will this save the notes
-                st.session_state.markdown = st.session_state.notes.get_markdown_content()
-                print("this is the markdown: "+st.session_state.markdown)
+                # st.session_state.markdown = st.session_state.notes.get_markdown_content()
+                # print("this is the markdown: "+st.session_state.markdown)
 
-                st.write(st.session_state.markdown)
+                # st.write(st.session_state.markdown)
     
                 # st.markdown(st.session_state.notes.get_markdown_content())
 
@@ -708,11 +726,15 @@ try:
                             stream_section_content(content)
 
                 stream_section_content(notes_structure_json)
+                # st.write(st.session_state.notes)
+                # st.write("NONONONONON")
+                # st.markdown(st.session_state.notes)
 
             except json.JSONDecodeError:
                 st.error("Failed to decode the blog structure. Please try again.")
 
             enable()
+            
 
 except Exception as e:
     st.session_state.button_disabled = False

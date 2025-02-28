@@ -6,6 +6,7 @@ import os
 import shutil
 
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
+LARGER_MAX_FILE_SIZE = 225 * 1024 * 1024  # 250 MB, around a 3 hour audio file max
 FILE_TOO_LARGE_MESSAGE = "The audio file is too large for the current size and rate limits using Whisper. If you used a YouTube link, please try a shorter video clip. If you uploaded an audio file, try trimming or compressing the audio to under 25 MB."
 max_retries = 3
 delay = 2
@@ -58,7 +59,12 @@ def download_video_audio(url, external_logger=lambda x: None):
                 info = ydl.extract_info(url, download=False)
                 filesize = info.get("filesize", 0)
                 if filesize > MAX_FILE_SIZE:
-                    raise Exception(FILE_TOO_LARGE_MESSAGE)
+                    if filesize > LARGER_MAX_FILE_SIZE:
+                    # raise error we are not transcribing any video over 3 hours
+                        raise Exception(FILE_TOO_LARGE_MESSAGE)
+                    else:
+                        print("Only the first 19 minutes of the file will be summarized.")
+
                 filename = ydl.prepare_filename(info)
                 res = ydl.download([url])
                 print("youtube-dl result :", res)

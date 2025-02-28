@@ -1,6 +1,6 @@
 <h2 align="center">
  <br>
- <img src="https://i.imgur.com/scoiUgD.png" alt="Generate Organizes Notes with ScribeWizard" width="150">
+ <img src="https://i.imgur.com/scoiUgD.png" alt="Generate Organizes Notes with BlogWizard" width="150">
  <br>
  <br>
  BlogWizard: Generate blog articles from video or audio<br>using Groq, Whisper, and Llama3
@@ -10,8 +10,8 @@
 <!-- Adapted from ScribeWizard by @benkliger  -->
 
 <p align="center">
- <a href="https://github.com/bklieger/scribewizard/stargazers"><img src="https://img.shields.io/github/stars/bklieger/scribewizard"></a>
- <a href="https://github.com/bklieger/scribewizard/blob/main/LICENSE.md">
+ <a href="https://github.com/cho-groq/BlogWizard/stargazers"><img src="https://img.shields.io/github/stars/cho-groq/BlogWizard"></a>
+ <a href="https://github.com/cho-groq/BlogWizard/blob/main/LICENSE.md">
  <img src="https://img.shields.io/badge/License-MIT-green.svg">
  </a>
 </p>
@@ -31,7 +31,7 @@
 
 ## Overview
 
-ScribeWizard is a streamlit app that scaffolds the creation of structured lecture notes by iteratively structuring and generating notes from transcribed audio lectures using Groq's Whisper API. The app mixes Llama3-8b and Llama3-70b, utilizing the larger model for generating the notes structure and the faster of the two for creating the content.
+BlogWizard is a streamlit app that scaffolds the creation of structured lecture notes by iteratively structuring and generating notes from transcribed audio lectures using Groq's Whisper API. The app mixes Llama3-8b and Llama3-70b, utilizing the larger model for generating the notes structure and the faster of the two for creating the content.
 
 
 ### Features
@@ -49,25 +49,25 @@ ScribeWizard is a streamlit app that scaffolds the creation of structured lectur
 | [Transformers Explained by Google Cloud Tech](examples/transformers_explained/generated_notes.pdf)             |  https://www.youtube.com/watch?v=SZorAJ4I-sA                                       |
 | [The Essence of Calculus by 3Blue1Brown](examples/essence_calculus/generated_notes.pdf) | https://www.youtube.com/watch?v=WUvTyaaNkzM                                            |
 
-> As with all generative AI, content may include inaccurate or placeholder information. ScribeWizard is in beta and all feedback is welcome!
+> As with all generative AI, content may include inaccurate or placeholder information. BlogWizard is in beta and all feedback is welcome!
 
 ---
 
 ## Quickstart
 
 > [!IMPORTANT]
-> To use ScribeWizard, you can use a hosted version at [scribewizard.streamlit.app](https://scribewizard.streamlit.app).
-> Alternatively, you can run ScribeWizard locally with Streamlit using the quickstart instructions.
+> To use BlogWizard, you can use a hosted version at [BlogWizard.streamlit.app](https://BlogWizard.streamlit.app).
+> Alternatively, you can run BlogWizard locally with Streamlit using the quickstart instructions.
 
 
 ### Hosted on Streamlit:
 
-To use ScribeWizard, you can use the hosted version at [scribewizard.streamlit.app](https://scribewizard.streamlit.app)
+To use BlogWizard, you can use the hosted version at [BlogWizard.streamlit.app](https://BlogWizard.streamlit.app)
 
 
 ### Run locally:
 
-Alternative, you can run ScribeWizard locally with streamlit.
+Alternative, you can run BlogWizard locally with streamlit.
 
 #### Step 1
 First, you can set your Groq API key in the environment variables:
@@ -112,7 +112,7 @@ python3 -m streamlit run main.py
 
 ### Limitations
 
-ScribeWizard may generate inaccurate information or placeholder content. It should be used to generate notes for entertainment purposes only.
+BlogWizard may generate inaccurate information or placeholder content. It should be used to generate notes for entertainment purposes only.
 
 
 ## Contributing
