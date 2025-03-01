@@ -6,6 +6,12 @@ WORKDIR /app
 
 COPY . ./
 
-RUN pip3 install -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt \
+    && mkdir -p ~/.streamlit && echo "\
+    [server]\n\
+    headless = true\n\
+    enableCORS = false\n\
+    port = 8080\n\
+    " > ~/.streamlit/config.toml
 
-ENTRYPOINT ["streamlit", "-m", "run", "main.py", "--server.port=8080", "--server.address=0.0.0.0"]
+ENTRYPOINT ["streamlit", "run", "main.py", "--server.port=8080", "--server.address=0.0.0.0", "--server.headless=true"]
