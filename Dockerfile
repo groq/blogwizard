@@ -4,6 +4,9 @@ EXPOSE 8080
 
 WORKDIR /app
 
+# Install ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg
+
 COPY . ./
 
 RUN pip3 install --no-cache-dir -r requirements.txt \
