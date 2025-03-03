@@ -7,7 +7,6 @@
  <br>
 </h2>
 
-<!-- Adapted from ScribeWizard by @benkliger  -->
 
 <p align="center">
  <a href="https://github.com/cho-groq/BlogWizard/stargazers"><img src="https://img.shields.io/github/stars/cho-groq/BlogWizard"></a>
@@ -98,9 +97,12 @@ python3 -m streamlit run main.py
 - Streamlit
 - Llama3 on Groq Cloud
 - Whisper-large on Groq Cloud
+- PyDub to take the first 
 - It is recommented to use python3.12
 
 ### Limitations
+
+Audio files greater than 25mb or YouTube videos longer than 19 minutes will be trimmed down to those thresholds amounts listed and then summarized.
 
 BlogWizard may generate inaccurate information or placeholder content. It should be used to generate notes for entertainment purposes only.
 
@@ -108,3 +110,4 @@ BlogWizard may generate inaccurate information or placeholder content. It should
 
 Improvements through PRs are welcome!
 
+Adapted from ScribeWizard by [Ben Klieger](https://github.com/bklieger-groq)
