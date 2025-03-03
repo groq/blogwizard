@@ -25,33 +25,22 @@
 
 <br>
 
-[Demo of BlogWizard](https://github.com/user-attachments/assets/c222bea0-3784-4f06-b431-ef81eea5691d)
-> Demo of BlogWizard fast transcription of audio and generation of structured blog
+[Demo of BlogWizard](https://github.com/user-attachments/assets/0893d952-bb3b-4f94-b79d-cedb6183024b)
+> Demo of BlogWizard fast transcription of audio and generation of structured blog.
 
 
 ## Overview
 
-BlogWizard is a streamlit app that scaffolds the creation of structured lecture notes by iteratively structuring and generating notes from transcribed audio lectures using Groq's Whisper API. The app mixes Llama3-8b and Llama3-70b, utilizing the larger model for generating the notes structure and the faster of the two for creating the content.
+BlogWizard is a streamlit app that scaffolds the creation of blogs by iteratively structuring and generating blogs from transcribed audio lectures using Groq's Whisper API. The app mixes Llama3-8b and Llama3-70b, utilizing the larger model for generating the blog structure and the faster of the two for creating the content.
 
 
 ### Features
 
-- 🎧 Generate structured notes using transcribed audio by Whisper-large and text by Llama3
+- 🎧 Generate a structured blog using transcribed audio by Whisper-large and text by Llama3
 - ⚡ Lightning fast speed transcribing audio and generating text using Groq
 - 📖 Scaffolded prompting strategically switches between Llama3-70b and Llama3-8b to balance speed and quality
-- 🖊️ Markdown styling creates aesthetic notes on the streamlit app that can include tables and code 
-- 📂 Allows user to download a text or PDF file with the entire notes contents
-
-### Example Generated Notes:
-
-| Example                                      | Youtube Link                                                                                                                                |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| [Transformers Explained by Google Cloud Tech](examples/transformers_explained/generated_notes.pdf)             |  https://www.youtube.com/watch?v=SZorAJ4I-sA                                       |
-| [The Essence of Calculus by 3Blue1Brown](examples/essence_calculus/generated_notes.pdf) | https://www.youtube.com/watch?v=WUvTyaaNkzM                                            |
-
-> As with all generative AI, content may include inaccurate or placeholder information. BlogWizard is in beta and all feedback is welcome!
-
----
+- 🖊️ Markdown styling creates aesthetic blog posts on the streamlit app that can include tables and code 
+- 📂 Allows user to download a text or PDF file with the entire blog contents
 
 ## Quickstart
 
@@ -109,38 +98,13 @@ python3 -m streamlit run main.py
 - Streamlit
 - Llama3 on Groq Cloud
 - Whisper-large on Groq Cloud
+- It is recommented to use python3.12
 
 ### Limitations
 
 BlogWizard may generate inaccurate information or placeholder content. It should be used to generate notes for entertainment purposes only.
 
-
 ## Contributing
 
 Improvements through PRs are welcome!
 
-
-## Changelog
-
-### v0.1.0
-
-This release is an initial release of the application codebase. It includes the following features:
-
-🎧 Generate structured notes using transcribed audio by Whisper-large and text by Llama3
-
-⚡ Lightning fast speed transcribing audio and generating text using Groq
-
-📖 Scaffolded prompting strategically switches between Llama3-70b and Llama3-8b to balance speed and quality
-
-🖊️ Markdown styling creates aesthetic notes on the streamlit app that can include tables and code
-
-📂 Allows user to download a text or PDF file with the entire notes contents
-
-
-### Future Features:
-
-- Create summary version of transcript, batching into sections of n characters.
-- Allow upload of multiple audio files
-
-# Notea
-You have to use python3.12. 3.13 will not work.
