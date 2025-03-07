@@ -44,13 +44,8 @@ BlogWizard is a streamlit app that scaffolds the creation of blogs by iterativel
 ## Quickstart
 
 > [!IMPORTANT]
-> To use BlogWizard, you can use a hosted version at [BlogWizard.streamlit.app](https://BlogWizard.streamlit.app).
+> To use BlogWizard, you can use a hosted version at [https://blogwizard.groqlabs.com/](https://blogwizard.groqlabs.com/).
 > Alternatively, you can run BlogWizard locally with Streamlit using the quickstart instructions.
-
-
-### Hosted on Streamlit:
-
-To use BlogWizard, you can use the hosted version at [BlogWizard.streamlit.app](https://BlogWizard.streamlit.app)
 
 
 ### Run locally:
