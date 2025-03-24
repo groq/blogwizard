@@ -523,12 +523,13 @@ try:
                 print(arabic_translation)
                 arabic(arabic_translation)
 
-        def linkedin_post(text):
+        def linkedin_post(text, selected_lang, social_media):
             chat_completion = st.session_state.groq.chat.completions.create(
             messages=[
                 {
                     "role": "system",
-                    "content": prompt
+                    "content": f"Create a social post in the style of {social_media}. Use markdown and emojis.{' Make it less than 280 characters.' if social_media == 'X' else ''}",
+
                 },
                 {
                     "role": "user",
@@ -537,19 +538,38 @@ try:
             ],
             model="llama-3.3-70b-versatile",
             )
-            print("linkedin post: ", chat_completion.choices[0].message.content)
-            return chat_completion.choices[0].message.content
+
+            temp = chat_completion.choices[0].message.content
+            chat_completion2 = st.session_state.groq.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"Translate this markdown text into {selected_lang}:",
+                },
+                {
+                    "role": "user",
+                    "content": temp,
+                }
+            ],
+            model="llama-3.3-70b-versatile",
+            )
+            
+            return chat_completion2.choices[0].message.content
         
-        @st.dialog("Linkedin Post", width="large")
+        @st.dialog("Social Media Post", width="large")
         def vote(item):
             # Path = f'''{item}'''
             st.markdown(item)
         
-        prompt = st.text_area("Linkedin Summary Prompt", value="Summarize this text into a linkedin post. Use markdown and emojis.")
+        
+        social_media_options = ["LinkedIn", "Facebook", "X", "Instagram", "Reddit"]
+        st.title("Turn into a Social Media post")
+        social_media = st.selectbox("Choose a social media platform:", social_media_options)
+        st.write("Also uses the langugage above to translate.")
         
         if "vote" not in st.session_state:
-            if st.button("Summarize into linkedin post", disabled=st.session_state.buttons_misc_disabled):
-                linkedin_post_text = linkedin_post(st.session_state.notes.get_markdown_content())
+            if st.button("Create Social Media post", disabled=st.session_state.buttons_misc_disabled):
+                linkedin_post_text = linkedin_post(st.session_state.notes.get_markdown_content(), selected_lang, social_media)
                 vote(linkedin_post_text)
 
     if st.button('End Generation and Download Blog'):
