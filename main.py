@@ -571,7 +571,12 @@ try:
             if st.button("Create Social Media post", disabled=st.session_state.buttons_misc_disabled):
                 linkedin_post_text = linkedin_post(st.session_state.notes.get_markdown_content(), selected_lang, social_media)
                 vote(linkedin_post_text)
-
+                
+        st.markdown("""
+        - [Groq Terms of Use](https://groq.com/terms-of-use/)
+        - [Groq Privacy Policy (PDF)](https://groq.com/wp-content/uploads/2024/05/Groq-Privacy-Policy_Final_30MAY2024.pdf)
+        """)
+        
     if st.button('End Generation and Download Blog'):
         if "notes" in st.session_state:
 
