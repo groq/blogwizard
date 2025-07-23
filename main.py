@@ -33,7 +33,7 @@ st.set_page_config(
 )
       
 class GenerationStatistics:
-    def __init__(self, input_time=0,output_time=0,input_tokens=0,output_tokens=0,total_time=0,model_name="llama3-8b-8192"):
+    def __init__(self, input_time=0,output_time=0,input_tokens=0,output_tokens=0,total_time=0,model_name="llama-3.1-8b-instant"):
         self.input_time = input_time
         self.output_time = output_time
         self.input_tokens = input_tokens
@@ -203,7 +203,7 @@ def transcribe_audio(audio_file):
     results = transcription.text
     return results
 
-def generate_notes_structure(transcript: str, blog_style, model: str = "llama3-70b-8192"):
+def generate_notes_structure(transcript: str, blog_style, model: str = "llama-3.3-70b-versatile"):
     """
     Returns notes structure content as well as total tokens and total time for generation.
     """
@@ -278,7 +278,7 @@ def generate_notes_structure(transcript: str, blog_style, model: str = "llama3-7
 
     return statistics_to_return, completion.choices[0].message.content
 
-def generate_section(blog_length, transcript: str, existing_notes: str, section: str, model: str = "llama3-8b-8192"):
+def generate_section(blog_length, transcript: str, existing_notes: str, section: str, model: str = "llama-3.1-8b-instant"):
     stream = st.session_state.groq.chat.completions.create(
         model=model,
         messages=[
@@ -390,7 +390,7 @@ try:
         if image_file:
             st.image(image_file, width=200)
         
-        st.write(f"# 🧙‍♂️ BlogWizard \n## Generate blog from audio in seconds using Groq, Whisper, and Llama3")
+        st.write(f"# 🧙‍♂️ BlogWizard \n## Generate blog from audio in seconds using Groq, Whisper, and Llama")
         st.markdown(f"[Github Repository](https://github.com/cho-groq/BlogWizard)\n\n")
 
         STYLES = [
@@ -456,10 +456,10 @@ try:
         st.write(f"---")
 
         st.write("# Customization Settings\n🧪 These settings are experimental.\n")
-        st.write(f"By default, BlogWizard uses Llama3.3-70b for generating the blog outline and Llama3-8b for the content. This balances quality with speed and rate limit usage. You can customize these selections below.")
-        outline_model_options = ["llama-3.3-70b-versatile", "llama3-70b-8192", "deepseek-r1-distill-qwen-32b", "mixtral-8x7b-32768", "gemma-9b-it"]
+        st.write(f"By default, BlogWizard uses Llama3.3-70b for generating the blog outline and Llama3.1-8b-instant for the content. This balances quality with speed and rate limit usage. You can customize these selections below.")
+        outline_model_options = ["llama-3.3-70b-versatile", "moonshotai/kimi-k2-instruct", "meta-llama/llama-4-maverick-17b-128e-instruct", "deepseek-r1-distill-llama-70b"]
         outline_selected_model = st.selectbox("Outline generation:", outline_model_options)
-        content_model_options = ["llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768", "gemma2-9b-it"]
+        content_model_options = ["llama-3.1-8b-instant", "meta-llama/llama-4-scout-17b-16e-instruct"]
         content_selected_model = st.selectbox("Content generation:", content_model_options)
 
         
