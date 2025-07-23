@@ -33,7 +33,7 @@ st.set_page_config(
 )
       
 class GenerationStatistics:
-    def __init__(self, input_time=0,output_time=0,input_tokens=0,output_tokens=0,total_time=0,model_name="llama-3.1-8b-instant"):
+    def __init__(self, input_time=0,output_time=0,input_tokens=0,output_tokens=0,total_time=0,model_name="meta-llama/llama-4-maverick-17b-128e-instruct"):
         self.input_time = input_time
         self.output_time = output_time
         self.input_tokens = input_tokens
@@ -203,7 +203,7 @@ def transcribe_audio(audio_file):
     results = transcription.text
     return results
 
-def generate_notes_structure(transcript: str, blog_style, model: str = "llama-3.3-70b-versatile"):
+def generate_notes_structure(transcript: str, blog_style, model: str = "meta-llama/llama-4-maverick-17b-128e-instruct"):
     """
     Returns notes structure content as well as total tokens and total time for generation.
     """
@@ -252,6 +252,31 @@ def generate_notes_structure(transcript: str, blog_style, model: str = "llama-3.
         -Start building with Name of model today
         -Call out any tools or features that make the model more enticing (tool use, higher rate limits, etc)
 """
+    elif blog_style == "PRD":
+        shot_example = """
+        Solution Name PRD
+        -The name of the solution or product being defined
+        Business Problem
+        -Section header with no content
+        Problem Statement
+        -Clear description of the business problem being addressed
+        Current Process
+        -How things are currently done and what pain points exist
+        Success Definition
+        -What success looks like for this solution
+        Key Outcomes and Metrics
+        -Specific measurable outcomes and KPIs
+        Acceptance Criteria
+        -Criteria that must be met for the solution to be considered complete
+        Proposed Solution
+        -Section header with no content
+        Solution Description
+        -Detailed description of the proposed solution
+        Feature List
+        -List of key features and capabilities
+        Appendix
+        -Additional supporting information and references
+"""
     
     completion = st.session_state.groq.chat.completions.create(
         model=model,
@@ -278,7 +303,7 @@ def generate_notes_structure(transcript: str, blog_style, model: str = "llama-3.
 
     return statistics_to_return, completion.choices[0].message.content
 
-def generate_section(blog_length, transcript: str, existing_notes: str, section: str, model: str = "llama-3.1-8b-instant"):
+def generate_section(blog_length, transcript: str, existing_notes: str, section: str, model: str = "meta-llama/llama-4-maverick-17b-128e-instruct"):
     stream = st.session_state.groq.chat.completions.create(
         model=model,
         messages=[
@@ -357,7 +382,7 @@ def translate(text, selected_lang):
             "content": text,
         }
     ],
-    model="llama-3.3-70b-versatile"
+    model="meta-llama/llama-4-maverick-17b-128e-instruct"
     )
     print(f"translated notes in {selected_lang}: ", chat_completion.choices[0].message.content)
     
@@ -396,7 +421,8 @@ try:
         STYLES = [
             "Default",
             "Customer Case Study",
-            "Launch of new Product"
+            "Launch of new Product",
+            "PRD"
         ]
 
         st.title("Blog options")
@@ -456,10 +482,9 @@ try:
         st.write(f"---")
 
         st.write("# Customization Settings\n🧪 These settings are experimental.\n")
-        st.write(f"By default, BlogWizard uses Llama3.3-70b for generating the blog outline and Llama3.1-8b-instant for the content. This balances quality with speed and rate limit usage. You can customize these selections below.")
-        outline_model_options = ["llama-3.3-70b-versatile", "moonshotai/kimi-k2-instruct", "meta-llama/llama-4-maverick-17b-128e-instruct", "deepseek-r1-distill-llama-70b"]
+        outline_model_options = ["meta-llama/llama-4-maverick-17b-128e-instruct", "moonshotai/kimi-k2-instruct", "deepseek-r1-distill-llama-70b", "llama-3.3-70b-versatile"]
         outline_selected_model = st.selectbox("Outline generation:", outline_model_options)
-        content_model_options = ["llama-3.1-8b-instant", "meta-llama/llama-4-scout-17b-16e-instruct"]
+        content_model_options = ["meta-llama/llama-4-maverick-17b-128e-instruct", "moonshotai/kimi-k2-instruct", "deepseek-r1-distill-llama-70b", "llama-3.3-70b-versatile"]
         content_selected_model = st.selectbox("Content generation:", content_model_options)
 
         
@@ -536,7 +561,7 @@ try:
                     "content": text,
                 }
             ],
-            model="llama-3.3-70b-versatile",
+            model="meta-llama/llama-4-maverick-17b-128e-instruct",
             )
 
             temp = chat_completion.choices[0].message.content
@@ -551,7 +576,7 @@ try:
                     "content": temp,
                 }
             ],
-            model="llama-3.3-70b-versatile",
+            model="meta-llama/llama-4-maverick-17b-128e-instruct",
             )
             
             return chat_completion2.choices[0].message.content
