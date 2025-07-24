@@ -3,7 +3,7 @@
  <img src="https://i.imgur.com/scoiUgD.png" alt="Generate Organizes Notes with BlogWizard" width="150">
  <br>
  <br>
- BlogWizard: Generate blog articles from video or audio<br>using Groq, Whisper, and Llama
+ BlogWizard: Generate blog articles from video or audio<br>using Groq, Whisper, and Llama/Kimi/Deepseek
  <br>
 </h2>
 
@@ -30,14 +30,14 @@
 
 ## Overview
 
-BlogWizard is a streamlit app that scaffolds the creation of blogs by iteratively structuring and generating blogs from transcribed audio lectures using Groq's Whisper API. The app mixes Llama3.1-8b-instant and Llama3.3-70b-versatile, utilizing the larger model for generating the blog structure and the faster of the two for creating the content.
+BlogWizard is a streamlit app that scaffolds the creation of blogs by iteratively structuring and generating blogs from transcribed audio lectures using Groq's Whisper API.
 
 
 ### Features
 
-- 🎧 Generate a structured blog using transcribed audio by Whisper-large and text by Llama
+- 🎧 Generate a structured blog using transcribed audio by Whisper-large and text by Llama, Kimi, or Deepseek
 - ⚡ Lightning fast speed transcribing audio and generating text using Groq
-- 📖 Scaffolded prompting strategically switches between Llama3.3-70b-versatile and Llama3.1-8b-instant to balance speed and quality
+- 📖 Scaffolded prompting strategically switches between Content and Outline models to balance speed and quality
 - 🖊️ Markdown styling creates aesthetic blog posts on the streamlit app that can include tables and code 
 - 📂 Allows user to download a text or PDF file with the entire blog contents
 
@@ -90,7 +90,7 @@ python3 -m streamlit run main.py
 ### Technologies
 
 - Streamlit
-- Llama on Groq Cloud
+- Llama, Kimi, and Deepseek on Groq Cloud
 - Whisper-large on Groq Cloud
 - PyDub to take the first 
 - It is recommented to use python3.12
