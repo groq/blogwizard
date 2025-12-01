@@ -14,7 +14,7 @@ defusedxml==0.7.1
 distro==1.9.0
 docopt==0.6.2
 exceptiongroup==1.2.1
-fonttools==4.51.0
+fonttools==4.61.0
 fpdf2==2.7.9
 gitdb==4.0.11
 GitPython==3.1.43
