@@ -88,7 +88,6 @@ python3 -m streamlit run main.py
 
 
 ### Technologies
-
 - Streamlit
 - Llama, Kimi, and Deepseek on Groq Cloud
 - Whisper-large on Groq Cloud
