@@ -36,7 +36,7 @@ mutagen==1.47.0
 numpy==1.26.4
 packaging==24.0
 pandas==2.2.2
-pillow==11.1.0
+pillow==12.1.1
 protobuf==4.25.3
 pyarrow==16.1.0
 pycparser==2.22
