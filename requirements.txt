@@ -3,7 +3,7 @@ annotated-types==0.6.0
 anyio==4.3.0
 attrs==23.2.0
 blinker==1.8.2
-Brotli==1.1.0
+Brotli==1.2.0
 cachetools==5.3.3
 certifi==2024.7.4
 cffi==1.16.0
